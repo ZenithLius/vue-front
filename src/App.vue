@@ -1,4 +1,5 @@
 
+
 <template>
   <h1>You did it!</h1>
   <ul>
@@ -11,7 +12,7 @@ import axios from 'axios'
 import { ref } from 'vue'
 const user=ref([])
 const req=()=>{
-   axios.get('http://111.230.45.191/api/user').then(
+   axios.get('http://localhost:3000/api/user').then(
     (res)=>{
       user.value=res.data
     }
