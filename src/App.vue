@@ -12,7 +12,7 @@ import axios from 'axios'
 import { ref } from 'vue'
 const user=ref([])
 const req=()=>{
-   axios.get('http://localhost:3000/api/user').then(
+   axios.get('/api/user').then(
     (res)=>{
       user.value=res.data
     }
