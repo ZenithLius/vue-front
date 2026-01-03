@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --crt-flicker: 0.01;
+  --retro-primary: #00ff41;
+  --retro-bg: #0a0a0a;
+}
+
+body {
+  @apply bg-retro-bg text-retro-primary font-retro overflow-hidden;
+  margin: 0;
+  height: 100vh;
+}
+
+/* CRT Scanline Effect */
+.scanlines {
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0) 50%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0.2));
+  background-size: 100% 4px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 50;
+  animation: scanline 10s linear infinite;
+}
+
+/* CRT Glow */
+.crt-glow {
+  text-shadow: 0 0 5px var(--tw-text-opacity, #00ff41);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-retro-bg border-l border-retro-primary;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-retro-primary;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-retro-amber;
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 5px currentColor;
+  }
+
+  .box-glow {
+    box-shadow: 0 0 5px currentColor;
+  }
+}

@@ -1,23 +1,31 @@
+<script setup lang="ts">
+import { useRoute } from 'vue-router'
+import RetroLayout from './components/RetroLayout.vue'
 
+const route = useRoute()
+</script>
 
 <template>
-  <h1>You did 233333  it!!!!!111!!222!!3333343466663</h1>
-  <ul>
-    <li v-for="item in user" :key="item.id">{{ item.name }}{{ item.id }}</li>
-  </ul>
+  <RetroLayout v-if="route.path !== '/data-screen'">
+    <router-view v-slot="{ Component }">
+      <transition name="page" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+  </RetroLayout>
+  <router-view v-else />
 </template>
 
-<script setup>
-import axios from 'axios'
-import { ref } from 'vue'
-const user=ref([])
-const req=()=>{
-   axios.get('/api/user').then(
-    (res)=>{
-      user.value=res.data
-    }
-)
+<style>
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
-req()
-</script>
-<style scoped></style>
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+  transform: scale(0.98) translateY(10px);
+  filter: blur(4px);
+}
+</style>

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^20.19.0 || >=22.12.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "dev": "vite",
@@ -12,12 +12,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@kjgl77/datav-vue3": "^1.7.4",
+    "@techstark/opencv-js": "4.12.0-release.1",
     "axios": "^1.13.2",
-    "vue": "^3.5.25"
+    "echarts": "^6.0.0",
+    "html2canvas": "^1.4.1",
+    "vue": "^3.5.25",
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.2",
-    "vite": "^7.2.4",
-    "vite-plugin-vue-devtools": "^8.0.5"
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.1",
+    "sass": "^1.83.0",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "unplugin-vue-router": "^0.10.9",
+    "vite": "^5.4.11",
+    "vite-plugin-vue-devtools": "^7.6.8",
+    "vue-tsc": "^2.2.0"
   }
 }
