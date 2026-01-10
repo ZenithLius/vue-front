@@ -11,4 +11,9 @@ const router = createRouter({
     routes,
 })
 
-createApp(App).use(router).use(DataV).mount('#app')
+import { createPinia } from 'pinia'
+import i18n from '@/i18n'
+
+const pinia = createPinia()
+
+createApp(App).use(router).use(pinia).use(i18n).use(DataV).mount('#app')

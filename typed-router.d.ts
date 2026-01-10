@@ -19,6 +19,9 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
+    '/admin/logs': RouteRecordInfo<'/admin/logs', '/admin/logs', Record<never, never>, Record<never, never>>,
+    '/dashboard/': RouteRecordInfo<'/dashboard/', '/dashboard', Record<never, never>, Record<never, never>>,
+    '/dashboard/domain/[id]': RouteRecordInfo<'/dashboard/domain/[id]', '/dashboard/domain/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/data-screen': RouteRecordInfo<'/data-screen', '/data-screen', Record<never, never>, Record<never, never>>,
     '/debug': RouteRecordInfo<'/debug', '/debug', Record<never, never>, Record<never, never>>,
     '/demos/css-showcase': RouteRecordInfo<'/demos/css-showcase', '/demos/css-showcase', Record<never, never>, Record<never, never>>,
@@ -30,11 +33,13 @@ declare module 'vue-router/auto-routes' {
     '/demos/vue-operations/Opencv': RouteRecordInfo<'/demos/vue-operations/Opencv', '/demos/vue-operations/Opencv', Record<never, never>, Record<never, never>>,
     '/demos/vue-operations/vue-operations': RouteRecordInfo<'/demos/vue-operations/vue-operations', '/demos/vue-operations/vue-operations', Record<never, never>, Record<never, never>>,
     '/demos/vue-operations/WebAssembly': RouteRecordInfo<'/demos/vue-operations/WebAssembly', '/demos/vue-operations/WebAssembly', Record<never, never>, Record<never, never>>,
+    '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
     '/skills/': RouteRecordInfo<'/skills/', '/skills', Record<never, never>, Record<never, never>>,
     '/skills/flutter': RouteRecordInfo<'/skills/flutter', '/skills/flutter', Record<never, never>, Record<never, never>>,
     '/skills/security': RouteRecordInfo<'/skills/security', '/skills/security', Record<never, never>, Record<never, never>>,
     '/skills/test': RouteRecordInfo<'/skills/test', '/skills/test', Record<never, never>, Record<never, never>>,
     '/skills/vue': RouteRecordInfo<'/skills/vue', '/skills/vue', Record<never, never>, Record<never, never>>,
-    '/skills/web': RouteRecordInfo<'/skills/web', '/skills/web', Record<never, never>, Record<never, never>>,
+    '/skills/web/': RouteRecordInfo<'/skills/web/', '/skills/web', Record<never, never>, Record<never, never>>,
+    '/skills/web/communication': RouteRecordInfo<'/skills/web/communication', '/skills/web/communication', Record<never, never>, Record<never, never>>,
   }
 }

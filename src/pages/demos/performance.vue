@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 
 // Generate 100k items
 const TOTAL_ITEMS = 100000
-const items = ref<Array<{ id: number, name: string, status: string, value: number }>>([])
+const items = ref<Array<{ id: number, nameIdentifier: string, status: string, value: number }>>([])
 const loading = ref(true)
 
 // Virtual Scroll State
 const containerHeight = ref(500)
-const itemHeight = 40
+const itemHeight = 48 
 const scrollTop = ref(0)
 const containerRef = ref<HTMLElement | null>(null)
 
@@ -22,45 +24,35 @@ const updateContainerHeight = () => {
 }
 
 const generateData = () => {
-  console.time('Data Generation')
   const newData = []
   const statuses = ['ACTIVE', 'OFFLINE', 'ERROR', 'SYNCING']
   
   for (let i = 0; i < TOTAL_ITEMS; i++) {
     newData.push({
       id: i,
-      name: `NODE_${i.toString().padStart(6, '0')}`,
+      // Store identifier instead of full string for flexibility
+      nameIdentifier: i.toString().padStart(6, '0'), 
       status: statuses[Math.floor(Math.random() * statuses.length)],
       value: Math.floor(Math.random() * 1000)
     })
   }
   items.value = newData
   loading.value = false
-  console.timeEnd('Data Generation')
-  
-  // Recalculate height after data load (just in case)
-  // nextTick would be better but setTimeout is simple enough here
   setTimeout(updateContainerHeight, 0)
 }
 
 onMounted(() => {
-  // Use setTimeout to allow UI to render "Loading" state first
   setTimeout(generateData, 100)
-  
-  // Observe container resize
   const observer = new ResizeObserver(updateContainerHeight)
   if (containerRef.value) {
     observer.observe(containerRef.value)
   }
-  
-  // Cleanup not strictly necessary for this demo but good practice
 })
 
 const onScroll = (e: Event) => {
   scrollTop.value = (e.target as HTMLElement).scrollTop
 }
 
-// Computed visible items
 const visibleItems = computed(() => {
   const start = Math.floor(scrollTop.value / itemHeight)
   const visibleCount = Math.ceil(containerHeight.value / itemHeight)
@@ -79,11 +71,11 @@ const totalHeight = computed(() => items.value.length * itemHeight)
 
 const getStatusColor = (status: string) => {
   switch(status) {
-    case 'ACTIVE': return 'text-retro-primary'
-    case 'OFFLINE': return 'text-gray-500'
-    case 'ERROR': return 'text-retro-red'
-    case 'SYNCING': return 'text-retro-blue'
-    default: return 'text-white'
+    case 'ACTIVE': return 'text-emerald-600 bg-emerald-50'
+    case 'OFFLINE': return 'text-gray-500 bg-gray-100'
+    case 'ERROR': return 'text-red-600 bg-red-50'
+    case 'SYNCING': return 'text-blue-600 bg-blue-50'
+    default: return 'text-gray-600'
   }
 }
 const props = defineProps<{
@@ -92,69 +84,65 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto h-full flex flex-col">
-    <div v-if="!embedded" class="flex justify-between items-center mb-8 border-b-4 border-retro-primary pb-2 shrink-0">
-      <button @click="router.push('/skills/vue')" class="mr-4 text-retro-blue hover:text-retro-primary text-xl">
-        < [BACK]
-      </button>
-      <h2 class="text-4xl">
-        DATA_STREAM_100K
-      </h2>
-      <div class="text-right font-mono text-sm">
-        <p>TOTAL_RECORDS: {{ items.length.toLocaleString() }}</p>
-        <p>RENDER_MODE: VIRTUAL_SCROLL</p>
-      </div>
+  <div class="h-full flex flex-col bg-skin-card">
+    <div v-if="loading" class="flex-1 flex items-center justify-center text-skin-muted animate-pulse">
+      {{ t('demos.perf.loading_data') }}
     </div>
 
-    <div v-if="loading" class="text-center py-20 animate-pulse text-2xl flex-1 flex items-center justify-center">
-      GENERATING_DATA...
+    <!-- Header Row -->
+    <div v-else class="grid grid-cols-12 gap-4 px-6 py-3 border-b border-skin-base bg-skin-base text-xs font-semibold text-skin-muted uppercase tracking-wider">
+        <div class="col-span-2">{{ t('demos.perf.id') }}</div>
+        <div class="col-span-4">{{ t('demos.perf.node_name') }}</div>
+        <div class="col-span-3">{{ t('demos.perf.status') }}</div>
+        <div class="col-span-3 text-right">{{ t('demos.perf.latency') }}</div>
     </div>
 
+    <!-- Virtual List -->
     <div 
-      v-else
+      v-if="!loading"
       ref="containerRef"
-      class="border-2 border-retro-primary bg-black/80 overflow-auto relative custom-scrollbar flex-1 min-h-0"
+      class="flex-1 overflow-auto relative custom-scrollbar"
       @scroll="onScroll"
     >
       <div :style="{ height: totalHeight + 'px' }" class="relative w-full">
         <div 
           v-for="item in visibleItems" 
           :key="item.id"
-          class="absolute w-full h-[40px] flex items-center px-4 border-b border-retro-primary/20 hover:bg-retro-primary/20 transition-colors font-mono text-sm"
-          :style="{ top: item.top + 'px' }"
+          class="absolute w-full px-6 grid grid-cols-12 gap-4 items-center border-b border-skin-base hover:bg-skin-base transition-colors text-sm text-skin-base"
+          :style="{ top: item.top + 'px', height: itemHeight + 'px' }"
         >
-          <div class="w-24 text-retro-amber">#{{ item.id }}</div>
-          <div class="w-40">{{ item.name }}</div>
-          <div class="w-32" :class="getStatusColor(item.status)">[{{ item.status }}]</div>
-          <div class="flex-1">
-            <div class="h-2 bg-retro-bg border border-retro-primary/30 w-full max-w-[200px]">
-              <div 
-                class="h-full bg-retro-primary" 
-                :style="{ width: (item.value / 10) + '%' }"
-              ></div>
-            </div>
+          <div class="col-span-2 font-mono text-skin-muted">#{{ item.id }}</div>
+          <div class="col-span-4 font-medium">NODE_{{ item.nameIdentifier }}</div>
+          <div class="col-span-3">
+             <span :class="`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`">
+                <!-- Reactive translation for status -->
+                {{ t('demos.perf.status_' + item.status.toLowerCase()) }}
+             </span>
           </div>
-          <div class="w-20 text-right">{{ item.value }}ms</div>
+          <div class="col-span-3 flex items-center justify-end gap-3">
+            <div class="h-1.5 w-24 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-skin-primary rounded-full transition-all duration-300" :style="{ width: (item.value / 10) + '%' }"></div>
+            </div>
+            <span class="text-xs font-mono w-12 text-right text-skin-muted">{{ item.value }}ms</span>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- <div class="mt-4 p-4 border border-retro-amber text-retro-amber text-sm font-mono shrink-0">
-      <p>> 100,000 个行数据</p>
-    </div> -->
   </div>
 </template>
 
 <style scoped>
 .custom-scrollbar::-webkit-scrollbar {
-  width: 16px;
+  width: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #000;
-  border-left: 1px solid var(--retro-primary);
+  background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--retro-primary);
-  border: 2px solid #000;
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.8);
 }
 </style>

@@ -1,76 +1,75 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from 'vue'
+import { ref, defineAsyncComponent, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { Activity, Cpu, GitGraph } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
-// 异步加载组件，进一步优化首屏性能
-// 虽然 v-if 已经保证了不渲染，但异步加载可以减少初始 bundle 大小
+// Async load components
 const DemoVirtualScroll = defineAsyncComponent(() => import('./performance.vue'))
 const DemoTimeSlicing = defineAsyncComponent(() => import('./performance1.vue'))
 const DemoVirtualTree = defineAsyncComponent(() => import('./performance2.vue'))
 
-// 当前激活的 Tab 索引
 const activeTab = ref(0)
 
-const tabs = [
-  { name: '列表', desc: '虚拟滚动 (100k list)' },
-  { name: 'dom', desc: '时间分片,渲染大量dom节点 (10k dom)' },
-  { name: '树', desc: '虚拟树 (1000k nodes)' }
-]
+const tabs = computed(() => [
+  { name: t('demos.perf.virtual_scroll'), desc: t('demos.perf.virtual_scroll_desc'), icon: Activity },
+  { name: t('demos.perf.time_slicing'), desc: t('demos.perf.time_slicing_desc'), icon: Cpu },
+  { name: t('demos.perf.virtual_tree'), desc: t('demos.perf.virtual_tree_desc'), icon: GitGraph }
+])
 </script>
 
 <template>
-  <div class="max-w-6xl mx-auto h-full flex flex-col">
-    <!-- 顶部导航栏 (紧凑模式) -->
-    <div class="flex items-center justify-between mb-2 border-b-2 border-retro-primary pb-2 shrink-0 gap-4">
-      <div class="flex items-center gap-2 shrink-0">
-        <button @click="router.push('/skills/vue')" class="text-retro-primary hover:text-retro-amber text-lg font-bold">
-          [<]
-        </button>
-        <h2 class="text-xl md:text-2xl whitespace-nowrap">
-          PERFORMANCE_LAB
-        </h2>
+  <div class="max-w-6xl mx-auto h-[calc(100vh-8rem)] flex flex-col space-y-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between shrink-0">
+      <div class="space-y-1">
+        <h2 class="text-2xl font-bold text-skin-base">{{ t('demos.perf.title') }}</h2>
+        <p class="text-sm text-skin-muted">{{ t('demos.perf.subtitle') }}</p>
       </div>
       
-      <!-- Tab 切换按钮 -->
-      <div class="flex gap-1 overflow-x-auto no-scrollbar">
+      <!-- Tabs -->
+      <div class="flex p-1 bg-skin-base/50 rounded-lg border border-skin-base">
         <button 
           v-for="(tab, index) in tabs" 
           :key="index"
           @click="activeTab = index"
-          class="px-2 py-1 border transition-all whitespace-nowrap font-mono text-xs md:text-sm"
-          :class="activeTab === index ? 'bg-retro-primary text-black border-retro-primary font-bold' : 'border-retro-primary text-retro-primary hover:bg-retro-primary/20'"
+          class="flex items-center gap-2 px-4 py-2 rounded-md transition-all text-sm font-medium"
+          :class="activeTab === index 
+            ? 'bg-skin-card text-skin-primary shadow-sm ring-1 ring-black/5' 
+            : 'text-skin-muted hover:text-skin-base'"
         >
-          {{ tab.name }}
+          <component :is="tab.icon" class="w-4 h-4" />
+          <span class="hidden md:inline">{{ tab.name }}</span>
         </button>
       </div>
     </div>
 
-    <!-- Tab 内容区域 -->
-    <!-- 关键点：使用 v-if 确保未激活的 Tab 不会渲染任何 DOM 节点，保证极致性能 -->
-    <div class="flex-1 overflow-hidden relative border-2 border-retro-primary bg-black/50 p-1">
-      
-      <!-- 1. 虚拟滚动演示 -->
+    <!-- Content Area -->
+    <div class="flex-1 overflow-hidden relative border border-skin-base bg-skin-card rounded-xl shadow-sm">
       <div v-if="activeTab === 0" class="h-full w-full">
         <DemoVirtualScroll embedded />
       </div>
 
-      <!-- 2. 时间分片演示 -->
       <div v-if="activeTab === 1" class="h-full w-full">
         <DemoTimeSlicing embedded />
       </div>
 
-      <!-- 3. 虚拟树演示 -->
       <div v-if="activeTab === 2" class="h-full w-full">
         <DemoVirtualTree embedded />
       </div>
-
     </div>
     
-    <!-- 底部说明 -->
-    <div class="mt-2 text-center text-retro-primary/50 text-xs font-mono">
-      > CURRENT_MODE: {{ tabs[activeTab].desc }} 
+    <!-- Footer Info -->
+    <div class="text-center text-xs text-skin-muted">
+      {{ t('demos.perf.running') }}: <span class="font-medium text-skin-primary">{{ tabs[activeTab].desc }}</span>
     </div>
   </div>
 </template>
+
+<route lang="yaml">
+meta:
+    layout: dashboard
+</route>

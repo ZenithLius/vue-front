@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { PlayCircle, Zap, Box } from 'lucide-vue-next'
+import { Globe, Layers, Layout } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 
@@ -9,28 +9,20 @@ const { t } = useI18n()
 
 const topics = computed(() => [
   {
-    id: 'perf_hub',
-    name: t('demos.vue.perf_hub'),
-    desc: t('demos.vue.perf_hub_desc'),
-    path: '/demos/performance-hub',
-    icon: Zap,
-    color: 'text-amber-500 bg-amber-50'
+    id: 'responsive',
+    name: 'Responsive Layouts',
+    desc: 'Grid, Flexbox & Container Queries',
+    path: '/skills/web/layout',
+    icon: Layout,
+    color: 'text-blue-500 bg-blue-50'
   },
   {
-    id: 'css',
-    name: t('demos.vue.css_showcase'),
-    desc: t('demos.vue.css_showcase_desc'),
-    path: '/demos/css-showcase',
-    icon: PlayCircle,
-    color: 'text-purple-500 bg-purple-50'
-  },
-   {
-    id: 'vue',
-    name: t('demos.vue.core_ops'),
-    desc: t('demos.vue.core_ops_desc'),
-    path: '/demos/vue-operations/vue-operations',
-    icon: Box,
-    color: 'text-green-500 bg-green-50'
+    id: 'api',
+    name: 'API Integration',
+    desc: 'REST, GraphQL & WebSocket Patterns',
+    path: '/skills/web/api',
+    icon: Globe,
+    color: 'text-cyan-500 bg-cyan-50'
   }
 ])
 </script>
@@ -39,26 +31,21 @@ const topics = computed(() => [
   <div class="max-w-5xl mx-auto space-y-8">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-3xl font-bold text-skin-base">{{ t('demos.vue.title') }}</h2>
-        <p class="text-skin-muted mt-2">{{ t('demos.vue.subtitle') }}</p>
+        <h2 class="text-3xl font-bold text-skin-base">{{ t('sidebar.web-skills') }}</h2>
+        <p class="text-skin-muted mt-2">Modern web development techniques and patterns.</p>
       </div>
     </div>
 
+    <!-- Currently using static content as placeholders for demonstration -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div 
         v-for="topic in topics" 
         :key="topic.id"
-        @click="router.push(topic.path)"
         class="group bg-skin-card border border-skin-base rounded-xl p-6 cursor-pointer hover:shadow-md hover:border-skin-primary/30 transition-all duration-300"
       >
         <div class="flex items-start justify-between mb-4">
           <div :class="`p-3 rounded-lg ${topic.color} group-hover:scale-110 transition-transform`">
             <component :is="topic.icon" class="w-6 h-6" />
-          </div>
-          <div class="h-8 w-8 rounded-full bg-skin-base flex items-center justify-center text-skin-muted group-hover:bg-skin-primary group-hover:text-white transition-colors">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
           </div>
         </div>
         

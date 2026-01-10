@@ -1,41 +1,37 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Play, Pause, RotateCcw } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const props = defineProps<{
   embedded?: boolean
 }>()
 
-// 总数据量：5万个点
 const TOTAL_ITEMS = 10000
-// 每一帧渲染的数量
 const ITEMS_PER_FRAME = 500
 
-// 数据列表 (只存颜色)
 const items = ref<Array<{ id: number, color: string }>>([])
-// 渲染进度
 const progress = ref(0)
-// 状态控制
 const isRendering = ref(false)
 const isPaused = ref(false)
 const currentStartIndex = ref(0)
 
-// 生成随机颜色
 const getRandomColor = () => {
   const colors = [
-    'bg-retro-primary', 'bg-retro-amber', 'bg-retro-red', 'bg-retro-blue', 
-    'bg-purple-500', 'bg-pink-500', 'bg-yellow-400', 'bg-cyan-400'
+    'bg-indigo-500', 'bg-blue-500', 'bg-sky-500', 
+    'bg-emerald-500', 'bg-teal-500', 'bg-purple-500', 
+    'bg-fuchsia-500', 'bg-pink-500'
   ]
   return colors[Math.floor(Math.random() * colors.length)]
 }
 
-// 预生成所有数据颜色 (避免渲染时计算开销)
 let allColors: string[] = []
 
 onMounted(() => {
-  // 初始化数据
   for (let i = 0; i < TOTAL_ITEMS; i++) {
     allColors.push(getRandomColor())
   }
@@ -53,7 +49,7 @@ const pauseRendering = () => {
 }
 
 const resumeRendering = () => {
-  if (!isRendering.value) return // 如果已经结束，不能继续
+  if (!isRendering.value) return
   isPaused.value = false
   renderFrame()
 }
@@ -67,8 +63,6 @@ const renderFrame = () => {
   }
 
   const endIndex = Math.min(currentStartIndex.value + ITEMS_PER_FRAME, TOTAL_ITEMS)
-  
-  // 批量添加数据
   const chunk = []
   for (let i = currentStartIndex.value; i < endIndex; i++) {
     chunk.push({
@@ -86,83 +80,67 @@ const renderFrame = () => {
 </script>
 
 <template>
-  <div class="max-w-6xl mx-auto h-full flex flex-col">
-    <!-- 头部导航 & 控制栏 -->
-    <div class="flex flex-col md:flex-row md:items-center  mb-8 border-b-4 border-retro-primary pb-4 gap-4">
-      <div v-if="!embedded" class="flex items-center">
-        <button @click="router.push('/skills/vue')" class="mr-4 text-retro-primary hover:text-retro-amber text-xl">
-          < [BACK]
-        </button>
-        <h2 class="text-3xl md:text-4xl">
-          PIXEL_DOTS_RENDER
-        </h2>
-      </div>
-      
-      <div class="flex items-center gap-4">
-        <div class="font-mono text-sm text-right mr-4">
-          <p>COUNT: {{ items.length.toLocaleString() }} / {{ TOTAL_ITEMS.toLocaleString() }}</p>
-          <p>STATUS: {{ isPaused ? 'PAUSED' : (isRendering ? 'RENDERING' : 'COMPLETED') }}</p>
-        </div>
-        
-        <button 
-          v-if="isRendering && !isPaused"
-          @click="pauseRendering"
-          class="border-2 border-retro-amber text-retro-amber px-4 py-2 hover:bg-retro-amber hover:text-black transition-colors font-bold"
-        >
-          || 暂停生成
-        </button>
-        
-        <button 
-          v-if="isRendering && isPaused"
-          @click="resumeRendering"
-          class="border-2 border-retro-primary text-retro-primary px-4 py-2 hover:bg-retro-primary hover:text-black transition-colors font-bold"
-        >
-          > 继续生成
-        </button>
+  <div class="h-full flex flex-col bg-skin-card font-sans">
+    <!-- Controls Toolbar -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-skin-base shrink-0">
+       <div class="flex items-center gap-4">
+          <div class="text-sm font-medium text-skin-muted">
+            <span class="text-skin-base font-bold">{{ items.length.toLocaleString() }}</span> / {{ TOTAL_ITEMS.toLocaleString() }} {{ t('demos.perf.dots') }}
+          </div>
+          
+          <!-- Progress Bar -->
+          <div class="w-48 h-2 bg-gray-100 rounded-full overflow-hidden">
+             <div class="h-full bg-skin-primary transition-all duration-75" :style="{ width: progress + '%' }"></div>
+          </div>
+          
+          <div class="text-xs font-mono text-skin-muted uppercase min-w-[80px]">
+             {{ isPaused ? t('demos.perf.state_paused') : (isRendering ? t('demos.perf.state_rendering') : t('demos.perf.state_completed')) }}
+          </div>
+       </div>
 
-        <button 
-          v-if="!isRendering && items.length === TOTAL_ITEMS"
-          @click="() => { items.splice(0); currentStartIndex = 0; progress = 0; startRendering() }"
-          class="border-2 border-retro-blue text-retro-blue px-4 py-2 hover:bg-retro-blue hover:text-black transition-colors font-bold"
-        >
-          R 重置演示
-        </button>
-        
-      </div>
+       <div class="flex items-center gap-2">
+         <button 
+           v-if="isRendering && !isPaused"
+           @click="pauseRendering"
+           class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-amber-50 text-amber-700 hover:bg-amber-100 text-sm font-medium transition-colors"
+         >
+           <Pause class="w-4 h-4" /> {{ t('demos.perf.pause') }}
+         </button>
+         
+         <button 
+           v-if="isRendering && isPaused"
+           @click="resumeRendering"
+           class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-sm font-medium transition-colors"
+         >
+           <Play class="w-4 h-4" /> {{ t('demos.perf.resume') }}
+         </button>
+
+         <button 
+           v-if="!isRendering && items.length === TOTAL_ITEMS"
+           @click="() => { items.splice(0); currentStartIndex = 0; progress = 0; startRendering() }"
+           class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-sm font-medium transition-colors"
+         >
+           <RotateCcw class="w-4 h-4" /> {{ t('demos.perf.restart') }}
+         </button>
+       </div>
     </div>
 
-    <!-- 进度条 -->
-    <div class="mb-6 relative h-6 border border-retro-primary/30 bg-black/50 shrink-0">
-      <div 
-        class="h-full bg-retro-primary/50 transition-all duration-75 flex items-center justify-end px-2 text-xs text-white font-mono"
-        :style="{ width: progress + '%' }"
-      >
-        {{ progress }}%
-      </div>
-    </div>
-
-    <!-- 密集点阵容器 -->
-    <div class="flex-1 bg-black/40 border-2 border-retro-primary p-4 overflow-auto relative min-h-0">
-      <!-- 使用 flex-wrap 让点自动换行排列 -->
-      <div class="flex flex-wrap content-start gap-0.5">
+    <!-- Render Container -->
+    <div class="flex-1 p-6 overflow-auto bg-skin-base/50 relative">
+      <div class="flex flex-wrap content-start gap-1">
         <div 
           v-for="item in items" 
           :key="item.id"
-          class="w-1 h-1 rounded-full opacity-80 hover:opacity-100 hover:scale-150 transition-transform duration-300"
+          class="w-1.5 h-1.5 rounded-full shadow-sm transition-transform hover:scale-150"
           :class="item.color"
         ></div>
       </div>
       
-      <!-- 渲染完成提示 -->
-      <div v-if="!isRendering && items.length === TOTAL_ITEMS" class="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div class="bg-black/80 border-4 border-retro-primary p-8 text-4xl text-glow animate-pulse">
-          RENDER_COMPLETE
-        </div>
+      <div v-if="!isRendering && items.length === TOTAL_ITEMS" class="absolute bottom-6 left-1/2 -translate-x-1/2">
+         <div class="bg-skin-card border border-skin-base shadow-lg px-6 py-2 rounded-full text-sm font-medium text-skin-primary animate-bounce">
+            {{ t('demos.perf.render_complete') }}
+         </div>
       </div>
     </div>
-    
-    <!-- <div class="mt-4 p-4 border border-retro-amber text-retro-amber text-sm font-mono shrink-0">
-      <p>>通过requestAnimationFrame 渲染 10,000 个 DOM 节点 | 每一帧渲染 {{ ITEMS_PER_FRAME }} 个 | 保持 60FPS 流畅度</p>
-    </div> -->
   </div>
 </template>

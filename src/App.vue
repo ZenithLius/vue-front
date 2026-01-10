@@ -1,20 +1,29 @@
-<script setup lang="ts">
-import { useRoute } from 'vue-router'
-import RetroLayout from './components/RetroLayout.vue'
-
-const route = useRoute()
-</script>
-
 <template>
-  <RetroLayout v-if="route.path !== '/data-screen'">
+  <component :is="layout">
     <router-view v-slot="{ Component }">
       <transition name="page" mode="out-in">
         <component :is="Component" />
       </transition>
     </router-view>
-  </RetroLayout>
-  <router-view v-else />
+  </component>
 </template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import GuestLayout from '@/layouts/GuestLayout.vue'
+import DashboardLayout from '@/layouts/DashboardLayout.vue'
+
+const route = useRoute()
+
+const layout = computed(() => {
+  const layoutName = route.meta.layout
+  if (layoutName === 'dashboard') {
+    return DashboardLayout
+  }
+  return GuestLayout
+})
+</script>
 
 <style>
 .page-enter-active,

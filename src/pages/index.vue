@@ -1,103 +1,114 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ArrowRight, Code2, FileCode, Palette, Zap, Database, Box } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 
-const lines = [
-  'INITIALIZING SYSTEM...',
-  'LOADING KERNEL...',
-  'MOUNTING FILESYSTEM...',
-  'CHECKING MEMORY... OK',
-  'LOADING USER PROFILE...',
-  'ACCESS GRANTED.',
-  'WELCOME TO MY PORTFOLIO.'
-]
-
-const displayedLines = ref<string[]>([])
-const showContent = ref(false)
-
-const typeLines = async () => {
-  for (const line of lines) {
-    displayedLines.value.push(line)
-    await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 400))
-  }
-  setTimeout(() => {
-    showContent.value = true
-    localStorage.setItem('boot_sequence_shown', 'true')
-  }, 500)
-}
-
-onMounted(() => {
-  const hasSeenBoot = localStorage.getItem('boot_sequence_shown')
-  
-  if (hasSeenBoot) {
-    showContent.value = true
-  } else {
-    typeLines()
-  }
-})
+const router = useRouter()
+const { t } = useI18n()
 </script>
 
 <template>
-  <div class="h-full flex flex-col justify-center max-w-4xl mx-auto">
-    <!-- Boot Sequence -->
-    <div v-if="!showContent" class="font-mono text-lg space-y-2">
-      <div v-for="(line, index) in displayedLines" :key="index" class="text-retro-primary">
-        <span class="text-retro-amber">root@SYSTEM:~$</span> {{ line }}
+  <div class="flex flex-col items-center justify-center text-center space-y-8 py-12">
+    <!-- Hero Text -->
+    <div class="space-y-4 max-w-2xl">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-sm font-medium border border-indigo-100 mb-4">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+        </span>
+        {{ t('home.version') }}
       </div>
-      <div class="animate-pulse">_</div>
+      
+      <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-gray-900 leading-tight" v-html="t('home.hero_title')"></h1>
+      
+      <p class="text-lg text-gray-600 leading-relaxed">
+        {{ t('home.hero_subtitle') }}
+      </p>
     </div>
 
-    <!-- Main Content -->
-    <div v-else class="animate-in fade-in zoom-in duration-1000">
-      <div class="border-4 border-retro-primary p-8 bg-black/40 relative overflow-hidden group">
-        <div class="absolute inset-0 bg-retro-primary/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-        
-        <h2 class="text-4xl md:text-6xl mb-6 text-retro-blue text-glow">
-          HI
-        </h2>
-        
-        <div class="space-y-6 text-xl md:text-2xl leading-relaxed relative z-10">
-          <p>
-            I am a <span class="text-retro-amber">Frontend Developer</span> & 
-            <span class="text-retro-red">Security Enthusiast</span>.
-          </p>
-          <p>
-            Specializing in:
-            <span class="inline-block bg-retro-primary text-retro-bg px-2 mx-1">Vue.js</span>
-            <span class="inline-block bg-retro-blue text-retro-bg px-2 mx-1">Flutter</span>
-            <span class="inline-block bg-retro-red text-retro-bg px-2 mx-1">CyberSec</span>
-          </p>
-          
-          <div class="pt-8 flex gap-4">
-            <router-link to="/skills" class="btn-retro">
-              [VIEW_SKILLS]
-            </router-link>
-            <router-link to="/css-showcase" class="btn-retro">
-              [EXPLORE_VISUALS]
-            </router-link>
-          </div>
-        </div>
-      </div>
+    <!-- CTA -->
+    <div class="flex gap-4">
+      <button 
+        @click="router.push('/login')"
+        class="px-8 py-3.5 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2"
+      >
+        {{ t('home.get_started') }}
+        <ArrowRight class="w-4 h-4" />
+      </button>
+      <button 
+        class="px-8 py-3.5 bg-white text-gray-700 border border-gray-200 rounded-full font-medium hover:bg-gray-50 transition-all hover:border-gray-300"
+      >
+        {{ t('home.docs') }}
+      </button>
+    </div>
 
-      <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="border border-retro-primary p-4 hover:bg-retro-primary/10 transition-colors cursor-pointer">
-          <h3 class="text-retro-amber mb-2">LATEST_LOG</h3>
-          <p class="text-sm opacity-80">Updated CSS animation module. Optimized rendering engine.</p>
-        </div>
-        <div class="border border-retro-primary p-4 hover:bg-retro-primary/10 transition-colors cursor-pointer">
-          <h3 class="text-retro-amber mb-2">STATUS</h3>
-          <p class="text-sm opacity-80">All systems operational. 0 errors found.</p>
-        </div>
-        <div class="border border-retro-primary p-4 hover:bg-retro-primary/10 transition-colors cursor-pointer">
-          <h3 class="text-retro-amber mb-2">CONTACT</h3>
-          <p class="text-sm opacity-80">Open for new missions. Signal strength: 100%</p>
-        </div>
-      </div>
+    <!-- Tech Stack Grid -->
+    <div class="mt-20 w-full max-w-5xl">
+       <div class="text-center mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">{{ t('home.built_with') }}</h2>
+          <p class="text-gray-500 mt-2">{{ t('home.tech_desc') }}</p>
+       </div>
+
+       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+          <!-- Vue -->
+          <div class="p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
+            <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Code2 class="w-5 h-5" />
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-1">{{ t('home.tech_vue') }}</h3>
+            <p class="text-sm text-gray-500">{{ t('home.tech_vue_desc') }}</p>
+          </div>
+          
+          <!-- TypeScript -->
+          <div class="p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
+            <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <FileCode class="w-5 h-5" />
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-1">{{ t('home.tech_ts') }}</h3>
+            <p class="text-sm text-gray-500">{{ t('home.tech_ts_desc') }}</p>
+          </div>
+
+          <!-- Tailwind -->
+          <div class="p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
+            <div class="w-10 h-10 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Palette class="w-5 h-5" />
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-1">{{ t('home.tech_tailwind') }}</h3>
+            <p class="text-sm text-gray-500">{{ t('home.tech_tailwind_desc') }}</p>
+          </div>
+
+          <!-- Vite -->
+          <div class="p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
+            <div class="w-10 h-10 rounded-lg bg-yellow-50 text-yellow-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Zap class="w-5 h-5" />
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-1">{{ t('home.tech_vite') }}</h3>
+            <p class="text-sm text-gray-500">{{ t('home.tech_vite_desc') }}</p>
+          </div>
+
+          <!-- Supabase -->
+          <div class="p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
+            <div class="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Database class="w-5 h-5" />
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-1">{{ t('home.tech_supabase') }}</h3>
+            <p class="text-sm text-gray-500">{{ t('home.tech_supabase_desc') }}</p>
+          </div>
+
+          <!-- Pinia -->
+          <div class="p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
+            <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Box class="w-5 h-5" />
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-1">{{ t('home.tech_pinia') }}</h3>
+            <p class="text-sm text-gray-500">{{ t('home.tech_pinia_desc') }}</p>
+          </div>
+       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-.btn-retro {
-  @apply border-2 border-retro-primary px-6 py-2 text-xl hover:bg-retro-primary hover:text-retro-bg transition-all duration-300 hover:shadow-[0_0_15px_rgba(0,255,65,0.6)];
-}
-</style>
+<route lang="yaml">
+meta:
+  layout: guest
+</route>

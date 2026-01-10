@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
-const router = useRouter()
-
+const { t } = useI18n()
 
 interface Demo {
   id: string
@@ -13,322 +12,156 @@ interface Demo {
   tailwindCode: string
 }
 
-const demos: Demo[] = [
+// Computed to support reactive language switching
+const demos = computed<Demo[]>(() => [
   {
     id: 'neon',
-    title: 'NEON_PULSE',
-    description: 'CSS keyframes for pulsing glow effect.',
+    title: t('demos.css.neon'),
+    description: t('demos.css.neon_desc'),
     cssCode: `.neon-pulse {
-  width: 4rem;
-  height: 4rem;
-  background-color: #00f0ff;
+  background-color: #6366f1; /* Indigo 500 */
   border-radius: 9999px;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  box-shadow: 0 0 20px currentColor;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: .5; }
 }`,
-    tailwindCode: `<div class="w-16 h-16 bg-retro-blue rounded-full animate-pulse shadow-[0_0_20px_currentColor]"></div>`
+    tailwindCode: `<div class="w-16 h-16 bg-indigo-500 rounded-full animate-pulse shadow-lg shadow-indigo-500/50"></div>`
   },
   {
     id: 'glitch',
-    title: 'GLITCH_TXT',
-    description: 'Pseudo-elements with clip-path animation.',
-    cssCode: `.glitch-text {
+    title: t('demos.css.glitch'),
+    description: t('demos.css.glitch_desc'),
+    cssCode: `/* Requires complex keyframes (omitted for brevity) */
+.glitch-text {
   position: relative;
-  font-size: 2.25rem;
   font-weight: bold;
 }
-.glitch-text::before,
-.glitch-text::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-.glitch-text::before {
-  left: 2px;
-  text-shadow: -1px 0 red;
-  clip-path: inset(24% 0 29% 0);
-  animation: glitch-anim-1 2.5s infinite linear alternate-reverse;
-}
-.glitch-text::after {
-  left: -2px;
-  text-shadow: -1px 0 blue;
-  clip-path: inset(85% 0 3% 0);
-  animation: glitch-anim-2 3s infinite linear alternate-reverse;
-}
-/* Keyframes omitted for brevity */`,
-    tailwindCode: `<!-- Custom CSS required for complex glitch effect -->
+/* See full CSS implementation */`,
+    tailwindCode: `<!-- Custom CSS class required -->
 <div class="glitch-text text-4xl font-bold relative" data-text="ERROR">ERROR</div>`
   },
   {
     id: '3d',
-    title: '3D_ROTATE',
-    description: 'Perspective and transform-style: preserve-3d.',
-    cssCode: `.perspective-container {
-  perspective: 500px;
+    title: t('demos.css.threed'),
+    description: t('demos.css.threed_desc'),
+    cssCode: `.rotate-box:hover {
+  transform: rotateY(180deg);
 }
-.rotate-box {
-  width: 4rem;
-  height: 4rem;
-  border: 4px solid #ffb000;
-  transition: transform 1s;
-}
-.rotate-box:hover {
-  transform: rotateY(180deg) rotateX(180deg);
-}`,
-    tailwindCode: `<div class="perspective-500">
-  <div class="w-16 h-16 border-4 border-retro-amber transform transition-transform duration-1000 hover:rotate-y-180 hover:rotate-x-180"></div>
+.perspective { perspective: 1000px; }`,
+    tailwindCode: `<div class="group perspective-1000">
+  <div class="w-20 h-20 bg-amber-500 transition-transform duration-700 group-hover:rotate-y-180 rounded-xl shadow-md"></div>
 </div>`
   },
   {
-    id: 'typewriter',
-    title: 'TYPE_WRITER',
-    description: 'Width transition with steps() timing function.',
-    cssCode: `.typing-demo {
-  width: 100%;
-  animation: typing 2s steps(20), blink .5s step-end infinite alternate;
-  white-space: nowrap;
-  overflow: hidden;
-  border-right: 4px solid #00ff41;
+    id: 'gradient',
+    title: t('demos.css.gradient'),
+    description: t('demos.css.gradient_desc'),
+    cssCode: `.gradient-bg {
+  background: linear-gradient(270deg, #6366f1, #ec4899);
+  background-size: 400% 400%;
+  animation: gradient 3s ease infinite;
 }
-
-@keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
-}
-@keyframes blink {
-  50% { border-color: transparent }
+@keyframes gradient {
+  0% { background-position: 0% 50% }
+  50% { background-position: 100% 50% }
+  100% { background-position: 0% 50% }
 }`,
-    tailwindCode: `<div class="typing-demo overflow-hidden whitespace-nowrap border-r-4 border-retro-primary pr-1">
-  console.log('Hello');
-</div>`
-  },
-  {
-    id: 'crt',
-    title: 'CRT_SCAN',
-    description: 'Linear gradient animation moving vertically.',
-    cssCode: `.scan-line {
-  width: 100%;
-  height: 1rem;
-  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.2), transparent);
-  animation: scanline 8s linear infinite;
-}
-
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
-}`,
-    tailwindCode: `<div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent h-4 w-full animate-scanline"></div>`
-  },
-  {
-    id: 'matrix',
-    title: 'MATRIX_FALL',
-    description: 'Vertical translation with different delays.',
-    cssCode: `.matrix-char {
-  animation: matrix-fall 2s linear infinite;
-}
-.delay-100 { animation-delay: 100ms; }
-/* ... other delays */
-
-@keyframes matrix-fall {
-  0% { transform: translateY(-100%); opacity: 0; }
-  50% { opacity: 1; }
-  100% { transform: translateY(100%); opacity: 0; }
-}`,
-    tailwindCode: `<div class="animate-matrix-fall delay-100">1 0 1 0</div>`
+    tailwindCode: `<div class="w-full h-24 bg-gradient-to-r from-indigo-500 to-pink-500 animate-gradient bg-[length:200%_200%]"></div>`
   }
-]
+])
 
 const activeDemoId = ref<string | null>(null)
 const activeTab = ref<'css' | 'tailwind'>('css')
 
-const activeDemo = computed(() => demos.find(d => d.id === activeDemoId.value))
+const activeDemo = computed(() => demos.value.find(d => d.id === activeDemoId.value))
 
-const openDemo = (id: string) => {
-  activeDemoId.value = id
-  activeTab.value = 'css'
+const toggleDemo = (id: string) => {
+  if (activeDemoId.value === id) {
+    activeDemoId.value = null
+  } else {
+    activeDemoId.value = id
+    activeTab.value = 'css'
+  }
 }
-
-const closeDemo = () => {
-  activeDemoId.value = null
-}
-
 
 const isCopied = ref(false)
-
 const copyCode = async () => {
   const code = activeTab.value === 'css' ? activeDemo.value?.cssCode : activeDemo.value?.tailwindCode
   if (code) {
-    try {
-      await navigator.clipboard.writeText(code)
-      isCopied.value = true
-      setTimeout(() => {
-        isCopied.value = false
-      }, 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
-    }
+    await navigator.clipboard.writeText(code)
+    isCopied.value = true
+    setTimeout(() => isCopied.value = false, 2000)
   }
 }
 </script>
 
 <template>
-  <div class="max-w-6xl mx-auto relative min-h-[600px]">
-    <button @click="router.push('/skills/vue')" class="mr-4 text-retro-blue hover:text-retro-primary text-xl">
-      < [BACK]
-    </button>
-    <h2 class="text-4xl mb-8 border-b-4 border-retro-primary inline-block pr-8">
-      VISUAL_FX_LIBRARY
-    </h2>
-
-    <!-- List View -->
-    <div v-if="!activeDemoId" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <div class="max-w-6xl mx-auto space-y-8">
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div 
-        v-for="demo in demos"
+        v-for="demo in demos" 
         :key="demo.id"
-        class="border-2 border-retro-primary p-6 relative group cursor-pointer overflow-hidden hover:bg-retro-primary/5 transition-colors"
-        @click="openDemo(demo.id)"
+        class="bg-skin-card border border-skin-base rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
       >
-        <div class="absolute inset-0 bg-retro-primary/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-        <h3 class="text-2xl mb-4 text-retro-blue group-hover:text-glow transition-all">{{ demo.title }}</h3>
-        
-        <!-- Preview Box -->
-        <div class="h-32 flex items-center justify-center bg-black/50 border border-retro-primary/30 overflow-hidden relative">
+        <!-- Preview Area -->
+        <div class="h-48 bg-gray-50 flex items-center justify-center p-6 border-b border-skin-base relative overflow-hidden group">
           
-          <!-- Neon Preview -->
-          <div v-if="demo.id === 'neon'" class="w-16 h-16 bg-retro-blue rounded-full animate-pulse shadow-[0_0_20px_currentColor]"></div>
-          
-          <!-- Glitch Preview -->
-          <div v-if="demo.id === 'glitch'" class="glitch-text text-4xl font-bold relative" data-text="ERROR">ERROR</div>
-          
-          <!-- 3D Preview -->
-          <div v-if="demo.id === '3d'" class="perspective-500">
-            <div class="w-16 h-16 border-4 border-retro-amber transform transition-transform duration-1000 group-hover:rotate-y-180 group-hover:rotate-x-180"></div>
+          <div v-if="demo.id === 'neon'">
+            <div class="w-16 h-16 bg-indigo-500 rounded-full animate-pulse shadow-lg shadow-indigo-500/50"></div>
           </div>
 
-          <!-- Typewriter Preview -->
-          <div v-if="demo.id === 'typewriter'" class="px-4">
-            <div class="typing-demo overflow-hidden whitespace-nowrap border-r-4 border-retro-primary pr-1">
-              console.log('Hello');
-            </div>
+          <div v-if="demo.id === 'glitch'">
+            <div class="glitch-text text-4xl font-bold text-gray-900" data-text="GLITCH">GLITCH</div>
           </div>
 
-          <!-- CRT Preview -->
-          <div v-if="demo.id === 'crt'" class="w-full h-full relative">
-            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent h-4 w-full animate-scanline"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-white/50">SCANNING...</div>
+          <div v-if="demo.id === '3d'">
+             <div class="perspective-1000 w-24 h-24 relative group-hover:scale-110 transition-transform">
+               <div class="w-full h-full bg-amber-400 rounded-xl shadow-lg border-2 border-amber-500/20 transform transition-transform duration-700 hover:rotate-y-180 flex items-center justify-center text-amber-900 font-bold text-xs uppercase cursor-pointer">
+                 Flip Me
+               </div>
+             </div>
           </div>
 
-          <!-- Matrix Preview -->
-          <div v-if="demo.id === 'matrix'" class="w-full font-mono text-xs leading-none">
-            <div class="flex justify-around">
-              <div class="animate-matrix-fall delay-100">1 0 1 0</div>
-              <div class="animate-matrix-fall delay-300">0 1 1 0</div>
-              <div class="animate-matrix-fall delay-700">1 1 0 1</div>
-              <div class="animate-matrix-fall delay-500">0 0 1 1</div>
-            </div>
-          </div>
-
-        </div>
-        <p class="mt-4 text-sm opacity-70">{{ demo.description }}</p>
-      </div>
-    </div>
-
-    <!-- Detail View -->
-    <div v-else class="animate-in zoom-in-95 duration-300 h-full flex flex-col">
-      <button 
-        @click="closeDemo"
-        class="mb-6 flex items-center text-retro-amber hover:text-retro-primary transition-colors w-fit"
-      >
-        <span class="mr-2 text-xl"><</span> [RETURN_TO_LIBRARY]
-      </button>
-
-      <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 border-2 border-retro-primary p-1 bg-black/40">
-        
-        <!-- Left: Visual -->
-        <div class="border border-retro-primary/50 p-8 flex items-center justify-center bg-black/60 min-h-[300px] relative overflow-hidden">
-          <div class="absolute top-2 left-2 text-xs text-retro-primary/50">PREVIEW_MODE</div>
-          
-          <!-- Neon Visual -->
-          <div v-if="activeDemoId === 'neon'" class="scale-150">
-            <div class="w-16 h-16 bg-retro-blue rounded-full animate-pulse shadow-[0_0_20px_currentColor]"></div>
-          </div>
-          
-          <!-- Glitch Visual -->
-          <div v-if="activeDemoId === 'glitch'" class="scale-150">
-            <div class="glitch-text text-6xl font-bold relative" data-text="SYSTEM FAILURE">SYSTEM FAILURE</div>
-          </div>
-          
-          <!-- 3D Visual -->
-          <div v-if="activeDemoId === '3d'" class="scale-150 perspective-500">
-            <div class="w-32 h-32 border-4 border-retro-amber transform transition-transform duration-1000 hover:rotate-y-180 hover:rotate-x-180 flex items-center justify-center text-retro-amber font-bold">
-              HOVER ME
-            </div>
-          </div>
-
-          <!-- Typewriter Visual -->
-          <div v-if="activeDemoId === 'typewriter'" class="scale-125">
-             <div class="typing-demo overflow-hidden whitespace-nowrap border-r-4 border-retro-primary pr-1 text-2xl">
-              > wake_up_neo...
-            </div>
-          </div>
-
-          <!-- CRT Visual -->
-          <div v-if="activeDemoId === 'crt'" class="w-full h-full relative bg-retro-primary/5">
-            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent h-8 w-full animate-scanline"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-2xl text-retro-primary">
-              SCANNING_SECTOR_7G...
-            </div>
-          </div>
-
-          <!-- Matrix Visual -->
-          <div v-if="activeDemoId === 'matrix'" class="w-full h-full font-mono text-lg leading-none flex justify-around items-start pt-10">
-             <div class="animate-matrix-fall delay-100 text-retro-primary">1 0 1 0 1</div>
-             <div class="animate-matrix-fall delay-300 text-retro-primary/80">0 1 1 0 0</div>
-             <div class="animate-matrix-fall delay-700 text-retro-primary/60">1 1 0 1 1</div>
-             <div class="animate-matrix-fall delay-500 text-retro-primary/90">0 0 1 1 0</div>
-             <div class="animate-matrix-fall delay-200 text-retro-primary/70">1 0 0 1 1</div>
+          <div v-if="demo.id === 'gradient'" class="w-full h-full">
+            <div class="w-full h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-[length:200%_200%] animate-gradient"></div>
           </div>
 
         </div>
 
-        <!-- Right: Code -->
-        <div class="flex flex-col border border-retro-primary/50 bg-black/80">
-          <div class="flex border-b border-retro-primary/50">
+        <!-- Content -->
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-semibold text-lg text-skin-base">{{ demo.title }}</h3>
             <button 
-              @click="activeTab = 'css'"
-              class="flex-1 py-2 text-center hover:bg-retro-primary/20 transition-colors"
-              :class="{ 'bg-retro-primary text-retro-bg font-bold': activeTab === 'css' }"
+              @click="toggleDemo(demo.id)"
+              class="text-xs font-medium text-skin-primary hover:text-skin-primary-dark transition-colors px-3 py-1 rounded-full bg-indigo-50 hover:bg-indigo-100"
             >
-              CSS_SOURCE
-            </button>
-            <button 
-              @click="activeTab = 'tailwind'"
-              class="flex-1 py-2 text-center hover:bg-retro-primary/20 transition-colors"
-              :class="{ 'bg-retro-primary text-retro-bg font-bold': activeTab === 'tailwind' }"
-            >
-              TAILWIND_CONFIG
+              {{ activeDemoId === demo.id ? t('common.hide_code') : t('common.view_code') }}
             </button>
           </div>
-          
-          <div class="flex-1 p-4 overflow-auto custom-scrollbar relative group">
-            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button 
-                @click="copyCode"
-                class="text-xs border px-2 py-1 transition-all duration-300"
-                :class="isCopied ? 'border-retro-amber text-retro-amber bg-retro-amber/10' : 'border-retro-primary hover:bg-retro-primary hover:text-retro-bg'"
-              >
-                {{ isCopied ? 'COPIED!' : 'COPY' }}
-              </button>
-            </div>
-            <pre class="font-mono text-sm text-retro-blue whitespace-pre-wrap">{{ activeTab === 'css' ? activeDemo?.cssCode : activeDemo?.tailwindCode }}</pre>
+          <p class="text-sm text-skin-muted line-clamp-2">{{ demo.description }}</p>
+        </div>
+
+        <!-- Code Panel (Expandable) -->
+        <div v-if="activeDemoId === demo.id" class="border-t border-skin-base bg-gray-900 text-gray-100">
+          <div class="flex border-b border-gray-700">
+            <button class="flex-1 py-2 text-xs font-medium text-gray-400 hover:text-white border-b-2 transition-colors"
+                :class="activeTab === 'css' ? 'border-indigo-500 text-white' : 'border-transparent'"
+                @click="activeTab = 'css'">CSS</button>
+            <button class="flex-1 py-2 text-xs font-medium text-gray-400 hover:text-white border-b-2 transition-colors"
+                :class="activeTab === 'tailwind' ? 'border-indigo-500 text-white' : 'border-transparent'"
+                @click="activeTab = 'tailwind'">Tailwind</button>
+          </div>
+          <div class="relative group">
+             <button class="absolute top-2 right-2 p-1 text-xs text-gray-500 hover:text-white transition-colors" @click="copyCode">
+               {{ isCopied ? t('common.copied') : t('common.copy') }}
+             </button>
+             <pre class="p-4 overflow-x-auto text-xs font-mono leading-relaxed">{{ activeTab === 'css' ? demo.cssCode : demo.tailwindCode }}</pre>
           </div>
         </div>
 
@@ -337,18 +170,29 @@ const copyCode = async () => {
   </div>
 </template>
 
+<route lang="yaml">
+meta:
+    layout: dashboard
+</route>
+
 <style scoped>
-.perspective-500 {
-  perspective: 500px;
+.animate-gradient {
+  animation: gradient 3s ease infinite;
+}
+@keyframes gradient {
+  0% { background-position: 0% 50% }
+  50% { background-position: 100% 50% }
+  100% { background-position: 0% 50% }
+}
+
+.perspective-1000 {
+  perspective: 1000px;
 }
 .rotate-y-180 {
   transform: rotateY(180deg);
 }
-.rotate-x-180 {
-  transform: rotateX(180deg);
-}
 
-/* Glitch Effect */
+/* Glitch */
 .glitch-text::before,
 .glitch-text::after {
   content: attr(data-text);
@@ -360,13 +204,13 @@ const copyCode = async () => {
 }
 .glitch-text::before {
   left: 2px;
-  text-shadow: -1px 0 red;
+  text-shadow: -1px 0 #ef4444;
   clip-path: inset(24% 0 29% 0);
   animation: glitch-anim-1 2.5s infinite linear alternate-reverse;
 }
 .glitch-text::after {
   left: -2px;
-  text-shadow: -1px 0 blue;
+  text-shadow: -1px 0 #3b82f6;
   clip-path: inset(85% 0 3% 0);
   animation: glitch-anim-2 3s infinite linear alternate-reverse;
 }
@@ -386,37 +230,5 @@ const copyCode = async () => {
   60% { clip-path: inset(20% 0 80% 0); }
   80% { clip-path: inset(60% 0 20% 0); }
   100% { clip-path: inset(40% 0 50% 0); }
-}
-
-/* Typing Demo */
-.typing-demo {
-  animation: typing 2s steps(20), blink .5s step-end infinite alternate;
-}
-@keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
-}
-@keyframes blink {
-  50% { border-color: transparent }
-}
-
-/* Matrix Fall */
-@keyframes matrix-fall {
-  0% { transform: translateY(-100%); opacity: 0; }
-  50% { opacity: 1; }
-  100% { transform: translateY(100%); opacity: 0; }
-}
-.animate-matrix-fall {
-  animation: matrix-fall 2s linear infinite;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #000;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #00ff41;
 }
 </style>

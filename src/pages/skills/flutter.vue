@@ -1,23 +1,28 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { Smartphone, Layers, Layout } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
+
+// Placeholder content for Flutter section
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto">
-    <div class="flex items-center mb-8">
-      <button @click="router.push('/skills')" class="mr-4 text-retro-blue hover:text-retro-primary text-xl">
-        < [BACK]
-      </button>
-      <h2 class="text-4xl border-b-4 border-retro-blue pr-8 text-retro-blue">
-        FLUTTER_MODULES
-      </h2>
+  <div class="max-w-5xl mx-auto space-y-8 h-full flex flex-col items-center justify-center text-center">
+    <div class="bg-blue-50 p-6 rounded-full">
+        <Smartphone class="w-16 h-16 text-blue-500" />
     </div>
-
-    <div class="border-2 border-retro-blue border-dashed p-12 text-center">
-      <h3 class="text-2xl text-retro-blue mb-4">NO_MODULES_LOADED</h3>
-      <p class="opacity-70 font-mono">Flutter demos coming soon...</p>
+    
+    <div>
+      <h2 class="text-3xl font-bold text-skin-base">{{ t('sidebar.flutter-skills') }}</h2>
+      <p class="text-skin-muted mt-2 max-w-md mx-auto">Cross-platform mobile development showcase. Coming soon.</p>
     </div>
   </div>
 </template>
+
+<route lang="yaml">
+meta:
+    layout: dashboard
+</route>
